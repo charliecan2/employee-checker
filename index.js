@@ -1,5 +1,4 @@
 const inquirer = require('inquirer');
-const Choices = require('inquirer/lib/objects/choices');
 const mysql = require('mysql');
 
 const connection = mysql.createConnection({
@@ -89,6 +88,8 @@ function renderRoles(){
     });
 }
 
-// renderDepartments();
+function addEmployee(){
+
+}
 
 init();

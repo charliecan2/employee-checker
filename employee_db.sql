@@ -3,8 +3,8 @@ CREATE DATABASE employee_db;
 USE employee_db;
 
 CREATE TABLE department (
-    id INT NOT NULL PRIMARY KEY,
-    name VARCHAR(30)
+ id INT NOT NULL PRIMARY KEY,
+ name VARCHAR(30)
 );
 
 INSERT INTO department (id, name) 
