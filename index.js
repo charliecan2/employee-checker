@@ -36,7 +36,19 @@ function init() {
             console.log('This feature is not available yet.')
         }
         else if (response.action === "Add Department") {
-            console.log('This feature is not available yet.')
+            inquirer.prompt([
+                {
+                    type: 'input',
+                    message: 'What will your new department be called?',
+                    name: 'newDepartment'
+                }
+            ]).then((response) => {
+                connection.query('INSERT INTO department(department_name) VALUES (?)', [response.newDepartment], (err, result) =>{
+                    if (err) throw err;
+                    renderDepartments();
+                    console.log('New Department successfully rendered!')
+                })
+            })
         }
         else if (response.action === "Add Role") {
             console.log('This feature is not available yet.')
@@ -89,7 +101,14 @@ function renderRoles(){
 }
 
 function addEmployee(){
+    connection.query('INSERT INTO employee')
+}
 
+function addDepartment(){
+    connection.query('INSERT INTO department(department_name) VALUES (?)', [], (err, result) =>{
+        if (err) throw err;
+
+    })
 }
 
 init();
