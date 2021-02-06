@@ -46,12 +46,35 @@ function init() {
                 connection.query('INSERT INTO department(department_name) VALUES (?)', [response.newDepartment], (err, result) =>{
                     if (err) throw err;
                     renderDepartments();
-                    console.log('New Department successfully rendered!')
+                    console.log('New Department successfully added!')
                 })
             })
         }
         else if (response.action === "Add Role") {
-            console.log('This feature is not available yet.')
+            inquirer.prompt([
+                {
+                    type: 'input',
+                    message: 'What new role would you like to create?',
+                    name: 'newRole'
+                },
+                {
+                    type: 'input',
+                    message: 'What is the yearly salary of this new role?',
+                    name: 'roleSalary'
+                },
+                {
+                   type: 'input',
+                   message: 'What department does this role belong to?',
+                    name: 'roleDepartment'
+                }
+            ]).then((response) => {
+                // Find a way to get the department_id and get the department_name based off of that
+                connection.query('INSERT INTO role(title, salary, department_id) VALUES();', [response.newRole, response.roleSalary, response.roleDepartment], (err, response) => {
+                    if (err) throw err;
+                    renderRoles();
+                    console.log('New role was successfully added?')
+                })
+            })
         }
         else if (response.action === "Update Employee Role") {
             console.log('This feature is not available yet.')
@@ -89,12 +112,12 @@ function renderDepartments(){
 }
 
 function renderRoles(){
-    connection.query('SELECT * FROM employee_db.role', (err, result) => {
+    connection.query('SELECT role.*, department.department_name FROM role INNER JOIN department ON role.department_id=department.id;', (err, result) => {
         if(err) throw err;
-        console.log('id  title                 salary  deparment_id');
-        console.log('--  --------------------  ------  ------------');
-        result.forEach(({ role_id, title, salary, department_id}) => {
-            console.log(`${role_id} | ${title} | ${salary} | ${department_id}`)
+        console.log('id  title                 salary  deparment_id  department_name');
+        console.log('--  --------------------  ------  ------------  ---------------');
+        result.forEach(({ role_id, title, salary, department_id, department_name}) => {
+            console.log(`${role_id} | ${title} | ${salary} | ${department_id} | ${department_name}`)
         });
         init();
     });
