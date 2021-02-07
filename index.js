@@ -227,6 +227,7 @@ function fetchEmployees(){
 
 function updateRole(){
     fetchEmployees();
+    fetchRoles();
     inquirer.prompt([
         {
             type: 'confirm',
@@ -237,11 +238,34 @@ function updateRole(){
             type: 'list',
             message: 'Who would you like to reassign to different role?',
             choices: employees,
+            name: 'selectEmployee'
+        },
+        {
+            type: 'list',
+            message: 'What role would you like to assign your employee?',
+            choices: roles,
             name: 'updateRole'
         }
     ]).then((response) => {
-        console.log(response.updateRole);
-        init();
+        let fullNameEmp = response.selectEmployee;
+        let nameArray = fullNameEmp.split(" ");
+        let firstName = nameArray[0];
+        let lastName = nameArray[1];
+
+        connection.query('SELECT role.id, role.title FROM role', (err, res) => {
+            if (err) throw err;
+            res.forEach(({id, title})=> {
+                if (response.updateRole === title){
+                    response.updateRole = id;
+                    return response.updateRole;
+                }
+            })
+            connection.query('UPDATE employee SET role_id=? WHERE first_name=? AND last_name=?',[response.updateRole, firstName, lastName], (err, result) => {
+                if (err) throw err;
+                console.log(`${response.selectEmployee} was successfully reassigned!`);
+            })
+            init();
+        })   
     })
 }
 
