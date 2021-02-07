@@ -27,14 +27,13 @@ function init() {
             viewEmployees();
         }
         else if (response.action === "View All Departments") {
-            renderDepartments();   
+            viewDepartments();   
         }
         else if (response.action === "View All Roles") {
-            renderRoles();
+            viewRoles();
         }
         else if (response.action === "Add Employee") {
-            // In development
-            console.log('This feature is not available yet.')
+            addEmployee();
         }
         else if (response.action === "Add Department") {
             addDepartment();
@@ -44,16 +43,7 @@ function init() {
         }
         else if (response.action === "Update Employee Role") {
             // Figure out how to get first/last name of employee's, and assign them to a new role
-            inquirer.prompt([
-                {
-                    type: 'input',
-                    message: 'Who would you like to reassign to different role?',
-                    name: 'updateRole'
-                }
-            ]).then((response) => {
-
-            })
-            console.log('This feature is not available yet.')
+            updateRole();
         }
         else if (response.action === "Quit App"){
             console.log('Goodbye.');
@@ -62,45 +52,92 @@ function init() {
     })
 }
 
+// Below are a list of convoluted function that let's us view our database in the console 
+// create and update our data as well
+
 function viewEmployees() {
-    connection.query('SELECT employee.id, employee.first_name, employee.last_name, role.title, department.department_name, role.salary FROM employee INNER JOIN role ON employee.role_id=role.role_id INNER JOIN department ON role.department_id=department.id;', (err, result) => {
+    connection.query('SELECT employee.id, employee.first_name, employee.last_name, role.title, department.department_name, role.salary FROM employee INNER JOIN role ON employee.role_id=role.id INNER JOIN department ON role.department_id=department.id;', (err, result) => {
         if (err) throw err;
         // console.log(result);
-        console.log('id  first_name  last_name  title              department  salary')
-        console.log('--  ----------  ---------  -----------------  ----------  ------')
-        result.forEach(({ id, first_name, last_name, title, department_name, salary}) => {
-            console.log(`${id} | ${first_name} | ${last_name} | ${title} | ${department_name} | ${salary}`)
-        });
+        console.table(result);
         init();
     })
 }
 
-function renderDepartments(){
+function viewDepartments(){
     connection.query('SELECT * FROM employee_db.department;', (err, result) => {
         if (err) throw err;
-        console.log('id   department_name');
-        console.log('---  ---------------');
-        result.forEach(({ id, department_name }) => {
-           console.log(`${id} | ${department_name}`)
-        });
+        // console.log('id   department_name');
+        // console.log('---  ---------------');
+        console.table(result);
+        // result.forEach(({ id, department_name }) => {
+        //    console.log(`${id} | ${department_name}`);
+        //    console.table()
+        // });
         init();
     })
 }
 
-function renderRoles(){
+function viewRoles(){
     connection.query('SELECT role.*, department.department_name FROM role INNER JOIN department ON role.department_id=department.id;', (err, result) => {
         if(err) throw err;
-        console.log('id  title                 salary  deparment_id  department_name');
-        console.log('--  --------------------  ------  ------------  ---------------');
-        result.forEach(({ id, title, salary, department_id, department_name}) => {
-            console.log(`${id} | ${title} | ${salary} | ${department_id} | ${department_name}`)
-        });
+        // console.log('id  title                 salary  deparment_id  department_name');
+        // console.log('--  --------------------  ------  ------------  ---------------');
+        // result.forEach(({ id, title, salary, department_id, department_name}) => {
+        //     console.log(`${id} | ${title} | ${salary} | ${department_id} | ${department_name}`)
+        // });
+        console.table(result);
         init();
     });
 }
 
+let roles = [];
+
+function fetchRoles(){
+    connection.query('SELECT title FROM role', (err, response) => {
+        if (err) throw err;
+        roles.splice(0, roles.length);
+        response.forEach(({title}) =>{
+            roles.push(title);
+        });
+    })
+}
+
 function addEmployee(){
-    connection.query('INSERT INTO employee')
+    fetchRoles();
+    inquirer.prompt([
+        {
+            type: 'input',
+            message: 'What is the first name of your employee?',
+            name: 'firstName'
+        },
+        {
+            type: 'input',
+            message: 'What is the last name of your employee?',
+            name: 'lastName'
+        },
+        {
+            type: "list",
+            message: 'What role will your employee undertake?',
+            choices: roles,
+            name: 'role'
+        }
+    ]).then((response) => {
+        connection.query('SELECT role.id, role.title FROM role', (err, res) => {
+            if (err) throw err;
+            res.forEach(({id, title})=> {
+                if (response.role === title){
+                    response.role = id;
+                    return response.role;
+                }
+            });
+            connection.query('INSERT INTO employee(first_name, last_name, role_id) VALUES(?, ?, ?)',[response.firstName, response.lastName, response.role], (err, res) => {
+                if (err) throw err;
+                console.log('Your new employee was successfully added!');
+                init();
+            })
+        })
+    })
 }
 
 function addDepartment(){
@@ -113,8 +150,9 @@ function addDepartment(){
     ]).then((response) => {
         connection.query('INSERT INTO department(department_name) VALUES (?)', [response.newDepartment], (err, result) =>{
             if (err) throw err;
-            renderDepartments();
-            console.log('New Department successfully added!')
+            viewDepartments();
+            console.log('New Department successfully added!');
+            init();
         })
     })
 }
@@ -161,10 +199,41 @@ function addRole(){
             });
             connection.query('INSERT INTO role(title, salary, department_id) VALUES(?, ?, ?);', [response.newRole, response.roleSalary, response.roleDepartment], (err, res) => {
                 if (err) throw err;
-                renderRoles();
-                console.log('New role was successfully added!')
+                console.log('New role was successfully added!');
+                init();
             })
         })
+    })
+}
+
+let employees = [];
+
+function fetchEmployees(){
+    connection.query('SELECT first_name, last_name FROM employee', (err, res) => {
+        if (err) throw err;
+        employees.splice(0, employees.length);
+        res.forEach(({first_name, last_name}) =>{
+            let fullName = [];
+            
+            fullName.splice(0, fullName.length);
+            fullName.push(first_name, last_name);
+            fullName.join(" ");
+            employees.push(fullName);
+        });
+    })
+}
+
+function updateRole(){
+    fetchEmployees();
+    inquirer.prompt([
+        {
+            type: 'list',
+            message: 'Who would you like to reassign to different role?',
+            choices: employees,
+            name: 'updateRole'
+        }
+    ]).then((response) => {
+
     })
 }
 

@@ -8,7 +8,7 @@ CREATE TABLE department (
 );
 
 INSERT INTO department (id, name) 
-VALUES (1, "Engineering"), (2, "Sales"), (3, "Finance"), (4, "Legal");
+VALUES (101, "Engineering"), (102, "Sales"), (103, "Finance"), (104, "Legal");
 
 CREATE TABLE role (
 	id INT NOT NULL PRIMARY KEY,
@@ -18,10 +18,10 @@ CREATE TABLE role (
 );
 
 INSERT INTO role (id, title, salary, department_id)
-VALUES (1, "Lead Engineer", 160000, 1), (2, "Software Engineer", 95000, 1), 
-(3, "Sales Lead", 80000, 2), (4, "Sales Reprentative", 54000, 2),
-(5, "Financial Manager", 90000, 3), (6, "Financial Analyst", 65000, 3),
-(7, "Lawyer", 140000, 4), (8, "Paralegal", 60000, 4);
+VALUES (1, "Lead Engineer", 160000, 101), (2, "Software Engineer", 95000, 101), 
+(3, "Sales Lead", 80000, 102), (4, "Sales Reprentative", 54000, 102),
+(5, "Financial Manager", 90000, 103), (6, "Financial Analyst", 65000, 103),
+(7, "Lawyer", 140000, 104), (8, "Paralegal", 60000, 104);
 
 CREATE TABLE employee (
 	id INT PRIMARY KEY,
