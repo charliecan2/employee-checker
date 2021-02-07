@@ -19,7 +19,7 @@ function init() {
         {
             type: 'list',
             message: "What would you like to do?",
-            choices: ["View All Employees", "View All Departments", "View All Roles", "Add Employee", "Add Department", "Add Role", "Update Employee Role", "Delete Employee", "Delete Department", "Quit App"],
+            choices: ["View All Employees", "View All Departments", "View All Roles", "Add Employee", "Add Department", "Add Role", "Update Employee Role", "Delete Employee", "Delete Department", "Delete Role", "Quit App"],
             name: 'action'
         }
     ]).then((response) => {
@@ -49,6 +49,9 @@ function init() {
         }
         else if (response.action === "Delete Department"){
             deleteDepartment();
+        }
+        else if (response.action === "Delete Role"){
+            deleteRole();
         }
         else if (response.action === "Quit App"){
             console.log('Goodbye.');
@@ -318,7 +321,31 @@ function deleteDepartment(){
             })
             connection.query('DELETE FROM role WHERE department_id=?', [response.delDepartment], (err, result) => {
                 console.log('All roles and employees from deleted department were removed.')
+                init();
             })
+        })
+    })
+}
+
+function deleteRole(){
+    fetchRoles();
+    inquirer.prompt([
+        {
+            type: 'confirm',
+            message: 'This action will delete the selected role and all employees associated with it. Are you sure you want to proceed?',
+            name: "confirmDel"
+        },
+        {
+            type: 'list',
+            message: 'Please select a role you would like to remove',
+            choices: roles,
+            name: 'removeRole'
+        }
+    ]).then((response) => {
+        connection.query('DELETE FROM role WHERE title=?',[response.removeRole], (err, result) => {
+            if (err) throw err;
+            console.log('Role successfully removed.');
+            init();
         })
     })
 }
