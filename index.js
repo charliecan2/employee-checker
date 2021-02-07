@@ -19,7 +19,7 @@ function init() {
         {
             type: 'list',
             message: "What would you like to do?",
-            choices: ["View All Employees", "View All Departments", "View All Roles", "Add Employee", "Add Department", "Add Role", "Update Employee Role", "Delete Employee", "Quit App"],
+            choices: ["View All Employees", "View All Departments", "View All Roles", "Add Employee", "Add Department", "Add Role", "Update Employee Role", "Delete Employee", "Delete Department", "Quit App"],
             name: 'action'
         }
     ]).then((response) => {
@@ -46,6 +46,9 @@ function init() {
         }
         else if (response.action === "Delete Employee"){
             deleteEmployee();
+        }
+        else if (response.action === "Delete Department"){
+            deleteDepartment();
         }
         else if (response.action === "Quit App"){
             console.log('Goodbye.');
@@ -282,6 +285,40 @@ function deleteEmployee(){
             if (err) throw err;
             console.log(`${firstName} ${lastName} was deleted from your employee database.`);
             init();
+        })
+    })
+}
+
+function deleteDepartment(){
+    fetchDepartments();
+    inquirer.prompt([
+        {
+            type: 'confirm',
+            message: 'This action will delete the selected Department and all Employees and Roles within in. Are you sure you want to delete a Department?',
+            name: 'confirmData'
+        },
+        {
+            type: 'list',
+            message: 'Please select a Department to delete from your database',
+            choices: departments,
+            name: 'delDepartment'
+        }
+    ]).then((response) => {
+        connection.query('DELETE FROM department WHERE department_name=?', [response.delDepartment], (err, result) => {
+            if (err) throw err;
+            console.log('Department successfully deleted.');
+        })
+        connection.query('SELECT * FROM department', (err, result) => {
+            if (err) throw err;
+            result.forEach(({id, department_name}) => {
+                if (response.delDepartment === department_name){
+                    response.delDepartment = id;
+                    return response.delDepartment;
+                }
+            })
+            connection.query('DELETE FROM role WHERE department_id=?', [response.delDepartment], (err, result) => {
+                console.log('All roles and employees from deleted department were removed.')
+            })
         })
     })
 }
