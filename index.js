@@ -120,7 +120,7 @@ function addEmployee(){
             });
             connection.query('INSERT INTO employee(first_name, last_name, role_id) VALUES(?, ?, ?)',[response.firstName, response.lastName, response.role], (err, res) => {
                 if (err) throw err;
-                console.log('Your new employee was successfully added!');
+                console.log(`${response.firstName} ${response.lastName} was successfully added!`);
                 init();
             })
         })
@@ -137,7 +137,7 @@ function addDepartment(){
     ]).then((response) => {
         connection.query('INSERT INTO department(department_name) VALUES (?)', [response.newDepartment], (err, result) =>{
             if (err) throw err;
-            console.log('New Department successfully added!');
+            console.log(`A new Department, ${response.newDepartment}, was successfully added!`);
             init();
         })
     })
@@ -185,7 +185,7 @@ function addRole(){
             });
             connection.query('INSERT INTO role(title, salary, department_id) VALUES(?, ?, ?);', [response.newRole, response.roleSalary, response.roleDepartment], (err, res) => {
                 if (err) throw err;
-                console.log('New role was successfully added!');
+                console.log(`${response.newRole} was successfully added as a new role!`);
                 init();
             })
         })
