@@ -33,50 +33,26 @@ function init() {
             renderRoles();
         }
         else if (response.action === "Add Employee") {
+            // In development
             console.log('This feature is not available yet.')
         }
         else if (response.action === "Add Department") {
-            inquirer.prompt([
-                {
-                    type: 'input',
-                    message: 'What will your new department be called?',
-                    name: 'newDepartment'
-                }
-            ]).then((response) => {
-                connection.query('INSERT INTO department(department_name) VALUES (?)', [response.newDepartment], (err, result) =>{
-                    if (err) throw err;
-                    renderDepartments();
-                    console.log('New Department successfully added!')
-                })
-            })
+            addDepartment();
         }
         else if (response.action === "Add Role") {
+            addRole();
+        }
+        else if (response.action === "Update Employee Role") {
+            // Figure out how to get first/last name of employee's, and assign them to a new role
             inquirer.prompt([
                 {
                     type: 'input',
-                    message: 'What new role would you like to create?',
-                    name: 'newRole'
-                },
-                {
-                    type: 'input',
-                    message: 'What is the yearly salary of this new role?',
-                    name: 'roleSalary'
-                },
-                {
-                   type: 'input',
-                   message: 'What department does this role belong to?',
-                    name: 'roleDepartment'
+                    message: 'Who would you like to reassign to different role?',
+                    name: 'updateRole'
                 }
             ]).then((response) => {
-                // Find a way to get the department_id and get the department_name based off of that
-                connection.query('INSERT INTO role(title, salary, department_id) VALUES();', [response.newRole, response.roleSalary, response.roleDepartment], (err, response) => {
-                    if (err) throw err;
-                    renderRoles();
-                    console.log('New role was successfully added?')
-                })
+
             })
-        }
-        else if (response.action === "Update Employee Role") {
             console.log('This feature is not available yet.')
         }
         else if (response.action === "Quit App"){
@@ -87,7 +63,7 @@ function init() {
 }
 
 function viewEmployees() {
-    connection.query('SELECT employee.id, employee.first_name, employee.last_name, role.title, department.department_name, role.salary FROM employee INNER JOIN role ON employee.role_id=role.role_id INNER JOIN department ON role.department_id=department.department_id;', (err, result) => {
+    connection.query('SELECT employee.id, employee.first_name, employee.last_name, role.title, department.department_name, role.salary FROM employee INNER JOIN role ON employee.role_id=role.role_id INNER JOIN department ON role.department_id=department.id;', (err, result) => {
         if (err) throw err;
         // console.log(result);
         console.log('id  first_name  last_name  title              department  salary')
@@ -104,8 +80,8 @@ function renderDepartments(){
         if (err) throw err;
         console.log('id   department_name');
         console.log('---  ---------------');
-        result.forEach(({ department_id, department_name }) => {
-           console.log(`${department_id} | ${department_name}`)
+        result.forEach(({ id, department_name }) => {
+           console.log(`${id} | ${department_name}`)
         });
         init();
     })
@@ -116,8 +92,8 @@ function renderRoles(){
         if(err) throw err;
         console.log('id  title                 salary  deparment_id  department_name');
         console.log('--  --------------------  ------  ------------  ---------------');
-        result.forEach(({ role_id, title, salary, department_id, department_name}) => {
-            console.log(`${role_id} | ${title} | ${salary} | ${department_id} | ${department_name}`)
+        result.forEach(({ id, title, salary, department_id, department_name}) => {
+            console.log(`${id} | ${title} | ${salary} | ${department_id} | ${department_name}`)
         });
         init();
     });
@@ -128,9 +104,67 @@ function addEmployee(){
 }
 
 function addDepartment(){
-    connection.query('INSERT INTO department(department_name) VALUES (?)', [], (err, result) =>{
-        if (err) throw err;
+    inquirer.prompt([
+        {
+            type: 'input',
+            message: 'What will your new department be called?',
+            name: 'newDepartment'
+        }
+    ]).then((response) => {
+        connection.query('INSERT INTO department(department_name) VALUES (?)', [response.newDepartment], (err, result) =>{
+            if (err) throw err;
+            renderDepartments();
+            console.log('New Department successfully added!')
+        })
+    })
+}
 
+let departments = [];
+
+function fetchDepartments(){
+    connection.query('SELECT department_name FROM department', (err, response) => {
+        if (err) throw err;
+        departments.splice(0, departments.length);
+        response.forEach(({department_name}) =>{
+            departments.push(department_name);
+        });
+    })
+}
+
+function addRole(){
+    fetchDepartments();
+    inquirer.prompt([
+        {
+            type: 'input',
+            message: 'What new role would you like to create?',
+            name: 'newRole'
+        },
+        {
+            type: 'input',
+            message: 'What is the yearly salary of this new role?',
+            name: 'roleSalary'
+        },
+        {
+            type: 'list',
+            message: 'What department does this role belong to?',
+            choices: departments,
+            name: 'roleDepartment'
+        },
+    ]).then((response) => {
+        connection.query('SELECT * FROM department', (err, res) => {
+            if (err) throw err;
+            res.forEach(({id, department_name})=> {
+                if (response.roleDepartment === department_name){
+                    response.roleDepartment = id;
+                    return response.roleDepartment;
+                }
+            });
+            connection.query('INSERT INTO role(title, salary, department_id) VALUES(?, ?, ?);', [response.newRole, response.roleSalary, response.roleDepartment], (err, res) => {
+                if (err) throw err;
+                renderRoles();
+                console.log('New role was successfully added!')
+            })
+        })
     })
 }
 
