@@ -208,6 +208,7 @@ function addRole(){
 
 let employees = [];
 
+
 function fetchEmployees(){
     connection.query('SELECT first_name, last_name FROM employee', (err, res) => {
         if (err) throw err;
@@ -216,9 +217,10 @@ function fetchEmployees(){
             let fullName = [];
             
             fullName.splice(0, fullName.length);
-            fullName.push(first_name, last_name);
-            fullName.join(" ");
-            employees.push(fullName);
+            fullName.push(first_name);
+            fullName.push(last_name)
+            let actualName = fullName.join(" ");
+            employees.push(actualName);
         });
     })
 }
@@ -227,13 +229,19 @@ function updateRole(){
     fetchEmployees();
     inquirer.prompt([
         {
+            type: 'confirm',
+            message: 'Do you really want to reassign a role?',
+            name: 'really'
+        },
+        {
             type: 'list',
             message: 'Who would you like to reassign to different role?',
             choices: employees,
             name: 'updateRole'
         }
     ]).then((response) => {
-
+        console.log(response.updateRole);
+        init();
     })
 }
 
