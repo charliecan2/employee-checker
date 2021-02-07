@@ -19,7 +19,7 @@ function init() {
         {
             type: 'list',
             message: "What would you like to do?",
-            choices: ["View All Employees", "View All Departments", "View All Roles", "Add Employee", "Add Department", "Add Role", "Update Employee Role", "Quit App"],
+            choices: ["View All Employees", "View All Departments", "View All Roles", "Add Employee", "Add Department", "Add Role", "Update Employee Role", "Delete Employee", "Quit App"],
             name: 'action'
         }
     ]).then((response) => {
@@ -43,6 +43,9 @@ function init() {
         }
         else if (response.action === "Update Employee Role") {
             updateRole();
+        }
+        else if (response.action === "Delete Employee"){
+            deleteEmployee();
         }
         else if (response.action === "Quit App"){
             console.log('Goodbye.');
@@ -252,6 +255,34 @@ function updateRole(){
             })
             init();
         })   
+    })
+}
+
+function deleteEmployee(){
+    fetchEmployees();
+    inquirer.prompt([
+        {
+            type: 'confirm',
+            message: 'Are you sure you want to delete an employee? This action will remove them from your database completely.',
+            name: 'confirmDel'
+        },
+        {
+            type: 'list',
+            message: 'Which employee would you like to terminate?',
+            choices: employees,
+            name: 'employeeDel'
+        }
+    ]).then((response) => {
+        let fullNameEmp = response.employeeDel;
+        let nameArray = fullNameEmp.split(" ");
+        let firstName = nameArray[0];
+        let lastName = nameArray[1];
+
+        connection.query('DELETE FROM employee WHERE first_name=? AND last_name=?', [firstName, lastName], (err, result) => {
+            if (err) throw err;
+            console.log(`${firstName} ${lastName} was deleted from your employee database.`);
+            init();
+        })
     })
 }
 
