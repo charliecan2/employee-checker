@@ -42,7 +42,6 @@ function init() {
             addRole();
         }
         else if (response.action === "Update Employee Role") {
-            // Figure out how to get first/last name of employee's, and assign them to a new role
             updateRole();
         }
         else if (response.action === "Quit App"){
@@ -52,13 +51,12 @@ function init() {
     })
 }
 
-// Below are a list of convoluted function that let's us view our database in the console 
-// create and update our data as well
+// Below are a list of convoluted functions that let's us view our database in the console 
+// as well as create and update our data
 
 function viewEmployees() {
     connection.query('SELECT employee.id, employee.first_name, employee.last_name, role.title, department.department_name, role.salary FROM employee INNER JOIN role ON employee.role_id=role.id INNER JOIN department ON role.department_id=department.id;', (err, result) => {
         if (err) throw err;
-        // console.log(result);
         console.table(result);
         init();
     })
@@ -67,13 +65,7 @@ function viewEmployees() {
 function viewDepartments(){
     connection.query('SELECT * FROM employee_db.department;', (err, result) => {
         if (err) throw err;
-        // console.log('id   department_name');
-        // console.log('---  ---------------');
         console.table(result);
-        // result.forEach(({ id, department_name }) => {
-        //    console.log(`${id} | ${department_name}`);
-        //    console.table()
-        // });
         init();
     })
 }
@@ -81,11 +73,6 @@ function viewDepartments(){
 function viewRoles(){
     connection.query('SELECT role.*, department.department_name FROM role INNER JOIN department ON role.department_id=department.id;', (err, result) => {
         if(err) throw err;
-        // console.log('id  title                 salary  deparment_id  department_name');
-        // console.log('--  --------------------  ------  ------------  ---------------');
-        // result.forEach(({ id, title, salary, department_id, department_name}) => {
-        //     console.log(`${id} | ${title} | ${salary} | ${department_id} | ${department_name}`)
-        // });
         console.table(result);
         init();
     });
@@ -150,7 +137,6 @@ function addDepartment(){
     ]).then((response) => {
         connection.query('INSERT INTO department(department_name) VALUES (?)', [response.newDepartment], (err, result) =>{
             if (err) throw err;
-            viewDepartments();
             console.log('New Department successfully added!');
             init();
         })
