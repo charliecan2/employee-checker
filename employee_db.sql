@@ -4,14 +4,14 @@ USE employee_db;
 
 CREATE TABLE department (
  id INT NOT NULL PRIMARY KEY,
- name VARCHAR(30)
+ department_name VARCHAR(30)
 );
 
-INSERT INTO department (id, name) 
+INSERT INTO department (id, department_name) 
 VALUES (101, "Engineering"), (102, "Sales"), (103, "Finance"), (104, "Legal");
 
 CREATE TABLE role (
-	id INT NOT NULL PRIMARY KEY,
+	id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
 	title VARCHAR(30),
     salary INT (6),
     department_id INT
