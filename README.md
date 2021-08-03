@@ -16,7 +16,7 @@ Before the user begins using this application, they will need to install mySQLWo
 
 To start using this employee tracker, you will need to open the terminal and type node index.js onto the command line. Then several options will be listed that will allow you to: View All Employees, View All Departments, View All Roles, Add Employees, Add Departments, Add Roles, Update Employee Role, Delete Employee, Delete Department, Delete Roles, and finally Quit App to exit out of the application. All of the options listed above make it easy to use and navigate through this application!
 ## Video Demonstration:
-https://youtu.be/BfT41j5hKVk
+https://youtu.be/2Mr7OGLQN4w
 ## License
 *   This application is covered by the [MIT](https://opensource.org/licenses/MIT/) license.
 ## Contributors
